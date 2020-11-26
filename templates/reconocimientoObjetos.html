@@ -1,0 +1,120 @@
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Reconocimiento de objetos</title>
+        <link rel="stylesheet" type="text/css" href="estilo.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.3/p5.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.3/addons/p5.dom.min.js"></script>
+        <script src="https://unpkg.com/ml5@0.1.2/dist/ml5.min.js" type="text/javascript"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css"
+              integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2"
+              crossorigin="anonymous">
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+                integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+                crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"
+                integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4"
+                crossorigin="anonymous"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js"
+                integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1"
+                crossorigin="anonymous"></script>
+    </head>
+
+    <body class="bg-light text-dark">
+        <style>
+            a:link {
+            color: #F23838;
+            background-color: transparent;
+            text-decoration: underline;
+            }
+            a:visited {
+            color: #F23838;
+            background-color: transparent;
+            text-decoration: underline;
+            }
+            a:hover {
+            color: #BF2A2A;
+            background-color: transparent;
+            text-decoration: underline;
+            }
+            #divcyan {
+            background-color: #04ADBF;
+            color: white;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+            }
+        </style>
+        <div class="container">
+            <nav class="navbar navbar-light bg-light d-flex justify-content-center">
+                <a class="navbar-brand" href="/index">
+                    {% load static %}
+                    <img src="{% static 'datos03.png' %}" width="50" height="50" class="d-inline-block align-top" alt="">
+                    Asp&Gar
+                </a>
+            </nav>
+        </div>
+        <div class="container">
+            <div class="d-flex justify-content-center">
+                <button class="btn btn-light dropdown-toggle font-weight-bold text-dark" type="button"
+                        id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Contenido
+                </button>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                    <a class="dropdown-item" href="/index">Página principal</a>
+                    <a class="dropdown-item" href="/reconocimientoObjetos">Reconocimiento Tiempo Real</a>
+                    <a class="dropdown-item" href="/cargarImagenes">Reconocimiento residuos</a>
+                </div>
+            </div>
+            <br>
+            <div id="divcyan">
+                <div class="d-flex justify-content-center">
+                    <h1>Reconocimiento de Objetos en Tiempo Real</h1>
+                </div>
+                <br>
+                <div class="d-flex justify-content-center">
+                    <h3 id='estado'>Cargando modelo...</h3>
+                </div>
+            </div>
+            <div class="rounded-bottom border border-primary pb-4">
+                <div class="d-flex justify-content-center text-center">
+                    <p>
+                        Esto es un/a <strong> <span id="resultado">...</span></strong><br/>
+                        Con una certeza del <strong><span id="probabilidad">...</span></strong>.
+                    </p>
+                    <script>
+                        let clasificador;
+                        let video;
+                        function setup() {
+                            noCanvas();
+                            // Inicializa la camara
+                            video = createCapture(VIDEO);
+                            // Inicializa le clasificador de imagenes con el video
+                            clasificador = ml5.imageClassifier('MobileNet', video, modeloListo);
+                        }
+                        //Cuando el modelo este listo
+                        function modeloListo() {
+                            // Cambiamos el estado a Modelo cargado
+                            select('#estado').html('Modelo cargado');
+                            // Llama al la funcion para comenzar a clasificar el video
+                            clasificarVideo();
+                        }
+                        // Predecimos que imagen es la que se muestra en el video
+                        function clasificarVideo() {
+                            clasificador.predict(tomaResultado);
+                        }
+                        // Cuando obtenemos el resultado
+                        function tomaResultado(err, resultado) {
+                            console.log(resultado);
+                            // Escribimos el nombre de la imagen detectada
+                            select('#resultado').html(resultado[0].className);
+                            select('#probabilidad').html(nf(resultado[0].probability, 0, 2));
+                            // Llamamos de nuevo al clasificador
+                            clasificarVideo();
+                        }
+                    </script>
+                </div>
+            </div>
+        </div>
+    </body>
+
+</html>
